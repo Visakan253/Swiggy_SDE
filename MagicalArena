@@ -1,0 +1,83 @@
+import java.util.Random;
+
+class Player {
+    private String name;
+    private int health;
+    private int strength;
+    private int attack;
+
+    public Player(String name, int health, int strength, int attack) {
+        this.name = name;
+        this.health = health;
+        this.strength = strength;
+        this.attack = attack;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void reduceHealth(int damage) {
+        health = Math.max(0, health - damage);
+    }
+
+    public int rollDice() {
+        Random random = new Random();
+        return random.nextInt(6) + 1;
+    }
+
+    public int calculateDamage(int diceRoll) {
+        return attack * diceRoll;
+    }
+
+    public int calculateDefense(int diceRoll) {
+        return strength * diceRoll;
+    }
+}
+
+class Arena {
+    public void simulateMatch(Player player1, Player player2) {
+        System.out.println("Match Start: " + player1.getName() + " vs " + player2.getName());
+        System.out.println();
+
+        while (player1.getHealth() > 0 && player2.getHealth() > 0) {
+            Player attacker = (player1.getHealth() <= player2.getHealth()) ? player1 : player2;
+            Player defender = (attacker == player1) ? player2 : player1;
+
+            System.out.println(attacker.getName() + " attacks " + defender.getName());
+
+            int attackRoll = attacker.rollDice();
+            int attackDamage = attacker.calculateDamage(attackRoll);
+
+            int defendRoll = defender.rollDice();
+            int defenseValue = defender.calculateDefense(defendRoll);
+
+            int netDamage = Math.max(0, attackDamage - defenseValue);
+            defender.reduceHealth(netDamage);
+
+            System.out.println(attacker.getName() + " rolled " + attackRoll + ", attack damage: " + attackDamage);
+            System.out.println(defender.getName() + " rolled " + defendRoll + ", defense value: " + defenseValue);
+            System.out.println(defender.getName() + " takes " + netDamage + " damage. Health: " + defender.getHealth());
+            System.out.println();
+
+            if (defender.getHealth() == 0) {
+                System.out.println(defender.getName() + " has died. " + attacker.getName() + " wins!");
+                break;
+            }
+        }
+    }
+}
+
+public class MagicalArena {
+    public static void main(String[] args) {
+        Player playerA = new Player("Player A", 50, 5, 10);
+        Player playerB = new Player("Player B", 100, 10, 5);
+
+        Arena arena = new Arena();
+        arena.simulateMatch(playerA, playerB);
+    }
+}
